@@ -1,0 +1,15 @@
+{
+  "name": "note-folder-autorename",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "rollup --config rollup.config.js -w",
+    "build": "rollup --config rollup.config.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "obsidian": "obsidianmd/obsidian-api",
+    "obsidian-rollup-presets": "github:pjeby/obsidian-rollup-presets",
+    "rollup": "^2.38.1",
+    "typescript": "^4.1.3"
+  }
+}
