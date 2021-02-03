@@ -34,8 +34,8 @@ class NotesAsFolders extends obsidian.Plugin {
             const existing = this.app.vault.getAbstractFileByPath(destination);
             if ( !existing ) {
                 await this.app.vault.createFolder(destination);
-            } else if ( ! existing.children ) {
-                return new obsidian.Notice(`A file named ${note.basename} is in the way; can't make folder`);
+            } else {
+                return new obsidian.Notice(`A file or folder named ${note.basename} is in the way; can't create folder`);
             }
             // Move the note into the folder
             await this.safeToRename();
