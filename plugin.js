@@ -35,12 +35,11 @@ export default class NotesAsFolders extends Plugin {
                 return new Notice(`A file or folder named ${note.basename} is in the way; can't create folder`);
             }
             // Move the note into the folder
-            await this.safeToRename();
-            await this.app.fileManager.renameFile(note, destination + "/" + note.name);
+            await this.safeRename(note, destination + "/" + note.name);
         })()
     }
 
-    async safeToRename() {
+    async safeRename(file, newName) {
         // Let any current rename in-progress finish
         await this.app.fileManager.renameFile.after();
 
@@ -52,11 +51,13 @@ export default class NotesAsFolders extends Plugin {
         // Let the link updates run, and wait for the cache to catch up
         await this.app.fileManager.updateInternalLinks.after();
         await this.metaDataIsClean;
+
+        return await this.app.fileManager.renameFile(file, newName);
     }
 
     async onRenameFile(file, oldName) {
         // We only care about notes that were already folder notes
-        if (file.extension !== "md" || !isFolderNote(oldName)) return
+        if (file.extension !== "md" || !isFolderNote(oldName)) return;
 
         const
             oldDir = folderBasename(oldName),
@@ -68,8 +69,7 @@ export default class NotesAsFolders extends Plugin {
         // If a folder note was renamed inside its folder, rename the folder to match
         if (oldPath === newPath) {
             const destination = dirname(oldPath) + "/" + file.basename;
-            await this.safeToRename();
-            await this.app.fileManager.renameFile(oldFolder, destination);
+            await this.safeRename(oldFolder, destination);
         }
 
         // If a folder note was moved to a new folder,
@@ -77,12 +77,10 @@ export default class NotesAsFolders extends Plugin {
             const destination = newPath + "/" + oldDir;
 
             // Move the folder alongside the note,
-            await this.safeToRename();
-            await this.app.fileManager.renameFile(oldFolder, destination);
+            await this.safeRename(oldFolder, destination);
 
             // Then move the note back into the folder
-            await this.safeToRename();
-            await this.app.fileManager.renameFile(file, destination + "/" + file.name);
+            await this.safeRename(file, destination + "/" + file.name);
             return;
         }
 
@@ -99,13 +97,14 @@ function serializeInstanceMethod(obj, method) {
     let lastRun = Promise.resolve();
     obj[method] = function(...args) {
         return lastRun = new Promise((res, rej) => {
-            lastRun.finally(() => {
-                this.constructor.prototype[method].apply(this, args).then(res, rej)
-            });
+            const wrap = () => {
+                this.constructor.prototype[method].apply(this, args).then(res, rej);
+            };
+            lastRun.then(wrap, wrap);
         });
     }
     obj[method].after = function () {
-        return new Promise((res, rej) => { lastRun.finally(res); });
+        return lastRun = new Promise((res, rej) => { lastRun.then(res, res); });
     }
     return () => { delete obj[method]; }
 }
