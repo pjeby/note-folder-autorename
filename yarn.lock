@@ -1771,9 +1771,9 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"notes-as-folders@workspace:.":
+"note-folder-autorename@workspace:.":
   version: 0.0.0-use.local
-  resolution: "notes-as-folders@workspace:."
+  resolution: "note-folder-autorename@workspace:."
   dependencies:
     obsidian: obsidianmd/obsidian-api
     obsidian-rollup-presets: "github:pjeby/obsidian-rollup-presets"
