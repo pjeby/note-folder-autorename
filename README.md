@@ -30,7 +30,7 @@ Rename its *folder* so it no longer matches the name of the note, then move the 
 
 ### How is this different from the "Folder Note" plugin?
 
-The [Folder Note](https://github.com/xpgo/obsidian-folder-note-plugin) plugin changes the UI of the file manager to hide folder notes and pretend that the folder is itself a note.  It also has some other features relating to the *content* of folder notes.  With the correct settings, it is compatible with this plugin and en
+The [Folder Note](https://github.com/xpgo/obsidian-folder-note-plugin) plugin changes the UI of the file manager to hide folder notes and pretend that the folder is itself a note.  It also has some other features relating to the *content* of folder notes.  With the correct settings, it is also compatible with this plugin.
 
 In contrast, this plugin doesn't do any special styling or change the file manager in any way.  Indeed, it has no UI at all except for the "Make this note a folder note" command.  It just quietly monitors the vault activity and steps in to keep your paths and filenames consistent.
 
