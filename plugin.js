@@ -7,19 +7,7 @@ export default class NotesAsFolders extends Plugin {
         this.addCommand(
             {id: "make-folder-note", name: "Make this note a folder note", checkCallback: this.noteToFolder.bind(this)}
         )
-
-        // Ensure these can't be called until their previous call completes
-        this.register(serializeInstanceMethod(this, "onRenameFile"));
-        this.register(serializeInstanceMethod(this.app.fileManager, "renameFile"));
-        this.register(serializeInstanceMethod(this.app.fileManager, "updateInternalLinks"));
-
         this.registerEvent(this.app.vault.on("rename", this.onRenameFile.bind(this)));
-
-        // Track changes that might mean a post-rename link update is still in progress
-        this.metaDataIsClean = Promise.resolve();
-        this.markClean = () => {};
-        this.registerEvent(this.app.vault.on("modify", () => this.metaDataIsClean = new Promise((res) => { this.markClean = res; })));
-        this.registerEvent(this.app.metadataCache.on("resolved", () => this.markClean()));
     }
 
     noteToFolder(check) {
@@ -40,18 +28,6 @@ export default class NotesAsFolders extends Plugin {
     }
 
     async safeRename(file, newName) {
-        // Let any current rename in-progress finish
-        await this.app.fileManager.renameFile.after();
-
-        while(document.body.find(".modal-container")) {
-            // if modal is displayed, need to wait for it to close
-            await new Promise((res) => setTimeout(res, 250));
-        }
-
-        // Let the link updates run, and wait for the cache to catch up
-        await this.app.fileManager.updateInternalLinks.after();
-        await this.metaDataIsClean;
-
         return await this.app.fileManager.renameFile(file, newName);
     }
 
@@ -93,18 +69,3 @@ function basename(path)       { return path.split("/").pop(); }
 function dirname(path)        { return path.split("/").slice(0, -1).join("/"); }
 function isFolderNote(path)   { return basename(path) === folderBasename(path) + ".md"; }
 
-function serializeInstanceMethod(obj, method) {
-    let lastRun = Promise.resolve();
-    obj[method] = function(...args) {
-        return lastRun = new Promise((res, rej) => {
-            const wrap = () => {
-                this.constructor.prototype[method].apply(this, args).then(res, rej);
-            };
-            lastRun.then(wrap, wrap);
-        });
-    }
-    obj[method].after = function () {
-        return lastRun = new Promise((res, rej) => { lastRun.then(res, res); });
-    }
-    return () => { delete obj[method]; }
-}
