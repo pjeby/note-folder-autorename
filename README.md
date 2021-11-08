@@ -43,5 +43,5 @@ If you want to use the Folder Note plugin in combination with this one, you can.
 * Note File Method: "Folder Name Inside"
 * Auto Rename: OFF
 
-The Folder Note plugin's auto-rename feature is not compatible with this plugin and enabling both may result in rename loops, broken links, or worse
+The Folder Note plugin's auto-rename feature is not compatible with this plugin and enabling both may result in rename loops, broken links, or worse.
 
