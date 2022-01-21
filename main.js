@@ -51,8 +51,8 @@ class NotesAsFolders extends obsidian.Plugin {
             await this.safeRename(oldFolder, destination);
         }
 
-        // If a folder note was moved to a new folder,
-        else if (file.basename === oldDir) {
+        // If a folder note was moved out of its old folder to a new folder,
+        else if (oldFolder && file.basename === oldDir) {
             const destination = newPath + "/" + oldDir;
 
             // Move the folder alongside the note,
